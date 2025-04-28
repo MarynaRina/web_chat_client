@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@theme {
+    --color-text: #D5CDCD;
+    --color-edit: #9EB1DA;
+    --color-bgBase: #31313C;
+    --color-gradient-start: #94BCB7;
+    --color-gradient-end: #A8A6FF;
+  }
