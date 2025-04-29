@@ -33,6 +33,12 @@ const SetupProfile: React.FC = () => {
     formData.append("avatar", avatar);
     formData.append("userId", userId);
 
+    console.log("📦 Sending formData:");
+    console.log("username:", username);
+    console.log("userId:", userId);
+    console.log("avatar:", avatar?.name);
+    console.log("API baseURL:", api.defaults.baseURL);
+
     try {
       setIsLoading(true);
       setError(null);
@@ -53,15 +59,26 @@ const SetupProfile: React.FC = () => {
         setError("Failed to set up profile. Please try again.");
       }
     } catch (err: any) {
-      console.error("Failed to setup profile", err);
-      if (err.response?.status === 404) {
-        setError(
-          "API endpoint not found. Please check the server configuration."
-        );
-      } else if (err.response?.status === 400) {
-        setError("Invalid request. Please provide all required fields.");
+      console.error("❌ Setup profile error:", err);
+
+      if (err.response) {
+        console.error("Response data:", err.response.data);
+        console.error("Response status:", err.response.status);
+        console.error("Response headers:", err.response.headers);
+      } else if (err.request) {
+        console.error("No response received:", err.request);
       } else {
-        setError("Something went wrong. Please try again.");
+        console.error("General error message:", err.message);
+      }
+
+      if (err.response?.status === 404) {
+        setError("API endpoint not found. Check deployment.");
+      } else if (err.response?.status === 400) {
+        setError("Missing username, userId, or avatar.");
+      } else if (err.code === "ECONNABORTED") {
+        setError("Request timed out. Server may be down.");
+      } else {
+        setError("Unknown error occurred. Check logs.");
       }
     } finally {
       setIsLoading(false);

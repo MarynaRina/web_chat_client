@@ -9,7 +9,8 @@
       },
       {
         "source": "/api/**",
-        "destination": "https://webchat-production-8bda.up.railway.app/api/**"
+        "destination": "https://webchat-production-8bda.up.railway.app/api/",
+        "type": 301
       },
       {
         "source": "**",
