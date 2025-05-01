@@ -34,7 +34,7 @@ const Chat: React.FC = () => {
     }
 
     axios
-      .get<UserProfile>(`${import.meta.env.VITE_API_URL}/api/users/${userId}`)
+      .get<UserProfile>(`/api/users/${userId}`)
       .then((res) => setProfile(res.data))
       .catch((err) => {
         console.error("Failed to load profile:", err);
@@ -97,10 +97,10 @@ const Chat: React.FC = () => {
   }
 
   return (
-    <div className="p-4 max-w-2xl mx-auto">
+    <div className="flex flex-col h-screen p-4 max-w-2xl mx-auto">
       <h1 className="text-xl font-bold mb-4">Chat</h1>
 
-      <div className="space-y-2 mb-4 max-h-[60vh] overflow-y-auto">
+      <div className="flex-1 overflow-y-auto space-y-2 mb-4">
         {messages.map((m) => (
           <div
             key={m.id}
@@ -108,11 +108,13 @@ const Chat: React.FC = () => {
               m.sender === userId ? "bg-blue-100 ml-auto" : "bg-gray-100"
             }`}
           >
-            <img
-              src={m.avatarUrl}
-              alt={`${m.senderName}'s avatar`}
-              className="w-8 h-8 rounded-full object-cover"
-            />
+            {m.avatarUrl && (
+              <img
+                src={m.avatarUrl}
+                alt={`${m.senderName}'s avatar`}
+                className="w-8 h-8 rounded-full object-cover"
+              />
+            )}
             <div>
               <div className="text-sm font-bold">{m.senderName}</div>
               <div className="text-sm">{m.text}</div>
@@ -124,7 +126,7 @@ const Chat: React.FC = () => {
         ))}
       </div>
 
-      <form onSubmit={send} className="flex gap-2">
+      <form onSubmit={send} className="flex gap-2 mt-auto">
         <input
           className="border p-2 flex-1 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
           value={message}
