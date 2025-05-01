@@ -1,10 +1,11 @@
 import { useState, FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../utils/axios"; // тут беремо готовий API обʼєкт
+import api from "../utils/axios";
 
 interface SetupProfileResponse {
   success: boolean;
   avatarUrl?: string;
+  message?: string;
 }
 
 const SetupProfile: React.FC = () => {
@@ -17,12 +18,14 @@ const SetupProfile: React.FC = () => {
   const userId = localStorage.getItem("userId");
 
   if (!userId) {
+    console.log("No userId in localStorage, redirecting to /");
     navigate("/");
     return null;
   }
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     if (!username || !avatar) {
       setError("Please provide a username and an avatar.");
       return;
@@ -30,56 +33,52 @@ const SetupProfile: React.FC = () => {
 
     const formData = new FormData();
     formData.append("username", username);
-    formData.append("avatar", avatar);
     formData.append("userId", userId);
+    formData.append("avatar", avatar);
 
+    // Логування FormData (не всі браузери дозволяють легко вивести FormData, тому вручну)
     console.log("📦 Sending formData:");
     console.log("username:", username);
     console.log("userId:", userId);
-    console.log("avatar:", avatar?.name);
+    console.log("avatar:", avatar.name, "size:", avatar.size, "type:", avatar.type);
     console.log("API baseURL:", api.defaults.baseURL);
 
-    try {
-      setIsLoading(true);
-      setError(null);
+    setIsLoading(true);
+    setError(null);
 
-      const response = await api.post<SetupProfileResponse>(
-        "/api/users/setup",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+    try {
+      const response = await api.post<SetupProfileResponse>("/users/setup", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      console.log("Response from /users/setup:", response.data);
 
       if (response.data.success) {
+        console.log("Profile setup successful, redirecting to /chat");
         navigate("/chat");
       } else {
-        setError("Failed to set up profile. Please try again.");
+        setError(response.data.message || "Failed to set up profile.");
       }
     } catch (err: any) {
       console.error("❌ Setup profile error:", err);
 
+      let errorMessage = "Failed to set up profile.";
       if (err.response) {
         console.error("Response data:", err.response.data);
         console.error("Response status:", err.response.status);
         console.error("Response headers:", err.response.headers);
+        errorMessage = err.response.data.message || `Server error: ${err.response.status}`;
       } else if (err.request) {
         console.error("No response received:", err.request);
+        errorMessage = "No response from server. Check network or server status.";
       } else {
-        console.error("General error message:", err.message);
+        console.error("Error message:", err.message);
+        errorMessage = err.message;
       }
 
-      if (err.response?.status === 404) {
-        setError("API endpoint not found. Check deployment.");
-      } else if (err.response?.status === 400) {
-        setError("Missing username, userId, or avatar.");
-      } else if (err.code === "ECONNABORTED") {
-        setError("Request timed out. Server may be down.");
-      } else {
-        setError("Unknown error occurred. Check logs.");
-      }
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -105,7 +104,11 @@ const SetupProfile: React.FC = () => {
         <input
           type="file"
           accept="image/*"
-          onChange={(e) => setAvatar(e.target.files?.[0] || null)}
+          onChange={(e) => {
+            const file = e.target.files?.[0] || null;
+            setAvatar(file);
+            console.log("Selected file:", file?.name, "size:", file?.size, "type:", file?.type);
+          }}
           className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
           disabled={isLoading}
         />

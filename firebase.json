@@ -5,12 +5,11 @@
     "rewrites": [
       {
         "source": "/socket.io/**",
-        "destination": "https://webchat-production-8bda.up.railway.app/socket.io/**"
+        "destination": "https://webchat-production-f3ed.up.railway.app/socket.io/**"
       },
       {
         "source": "/api/**",
-        "destination": "https://webchat-production-8bda.up.railway.app/api/",
-        "type": 301
+        "destination": "https://webchat-production-f3ed.up.railway.app/api/**"
       },
       {
         "source": "**",
