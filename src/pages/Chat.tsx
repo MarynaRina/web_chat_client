@@ -33,9 +33,8 @@ const Chat: React.FC = () => {
       return;
     }
 
-    // Отримати профіль користувача
     axios
-      .get<UserProfile>(`/api/users/${userId}`)
+      .get<UserProfile>(`${import.meta.env.VITE_API_URL}/api/users/${userId}`)
       .then((res) => setProfile(res.data))
       .catch((err) => {
         console.error("Failed to load profile:", err);
@@ -105,17 +104,15 @@ const Chat: React.FC = () => {
         {messages.map((m) => (
           <div
             key={m.id}
-            className={`flex items-start gap-2 rounded p-2 ${
+            className={`flex items-start gap-2 rounded p-2 max-w-[80%] ${
               m.sender === userId ? "bg-blue-100 ml-auto" : "bg-gray-100"
             }`}
           >
-            {m.avatarUrl && (
-              <img
-                src={m.avatarUrl}
-                alt={`${m.senderName}'s avatar`}
-                className="w-8 h-8 rounded-full object-cover"
-              />
-            )}
+            <img
+              src={m.avatarUrl}
+              alt={`${m.senderName}'s avatar`}
+              className="w-8 h-8 rounded-full object-cover"
+            />
             <div>
               <div className="text-sm font-bold">{m.senderName}</div>
               <div className="text-sm">{m.text}</div>
